@@ -32,7 +32,7 @@ public class Chopstick {
         init();
 
         String help = """
-                Enter what operation you want to do (transfer, attack, combine or divide),
+                Enter what operation you want to do (transfer, attack, combine, divide or rearrange),
                 or if you want to exit or print the current situation, use "exit" and "print" respectively.
                 Use "help" for help.
                 If a hand's value is -1, it implies that it is dead.
@@ -68,7 +68,7 @@ public class Chopstick {
                 System.out.println("Player 2's turn.");
 
             System.out.print(">>> ");
-            input = s.next().toLowerCase().trim();
+            input = s.nextLine().toLowerCase().trim();
 
             boolean repeat = false;
 
@@ -88,7 +88,7 @@ public class Chopstick {
                         }
                         while (true) {
                             System.out.print("To which hand?: ");
-                            hand = s.next().toLowerCase().trim();
+                            hand = s.nextLine().toLowerCase().trim();
                             if (hand.equals(left) || hand.equals(right))
                                     break;
                             System.out.println("Please type left or right.");
@@ -116,27 +116,34 @@ public class Chopstick {
                                 repeat = true;
                                 break;
                             }
-                            if (dividingHand.equals(left) && hand1.getValue() % 2 != 0) {
-                                System.out.println("You cannot divide your " +  dividingHand + " hand since its value is an odd number.");
-                                repeat = true;
-                                break;
-                            } else if (dividingHand.equals(right) && hand2.getValue() % 2 != 0) {
-                                System.out.println("You cannot divide your " +  dividingHand + " hand since its value is an odd number.");
-                                repeat = true;
+
+                            if (dividingHand.equals(left) && hand1.getValue() == 3) {
+                                Hand.oddDivide(hand1, hand2);
+                                System.out.println("You divided your " + dividingHand + " hand, resulting in your " + dividingHand +
+                                        " having a value of " + hand1.getValue() + " and your left hand having a value of " + hand2.getValue() + ".");
                                 break;
                             }
+                            if (dividingHand.equals(right) && hand2.getValue() == 3) {
+                                Hand.oddDivide(hand2, hand1);
+                                System.out.println("You divided your " + dividingHand + " hand, resulting in your " + dividingHand +
+                                        " having a value of " + hand2.getValue() + " and your left hand having a value of " + hand1.getValue() + ".");
+                                break;
+                            }
+
                             if (dividingHand.equals(right))
                                 Hand.divide(hand2, hand1);
                             else
                                 Hand.divide(hand1, hand2);
                             System.out.println("You divided your " + dividingHand +
                                     " hand, resulting in both your hands having the value of " + hand1.getValue());
-                        } else
+                        } else {
                             System.out.println("You cannot divide, since both of your hands are already alive.");
+                            repeat = true;
+                        }
                     }
                     case "combine" -> {
                         if (!hand3.isAlive || !hand4.isAlive) {
-                            System.out.println("You cannot transfer since one of your hands is dead.");
+                            System.out.println("You cannot combine since one of your hands is dead.");
                             repeat = true;
                             break;
                         }
@@ -154,7 +161,7 @@ public class Chopstick {
                         String attackedHand, hand;
                         while (true) {
                             System.out.print("With which hand of yours do you want to attack?: ");
-                            hand = s.next().toLowerCase().trim();
+                            hand = s.nextLine().toLowerCase().trim();
                             if (!(hand.equals(left) || hand.equals(right)))
                                 System.out.println("Please enter either left or right.");
                             else if (hand.equals(left) && !hand1.isAlive)
@@ -164,7 +171,7 @@ public class Chopstick {
                             else {
                                 while (true) {
                                     System.out.print("Which of your opponent's hands do you want to attack?: ");
-                                    attackedHand = s.next();
+                                    attackedHand = s.nextLine().toLowerCase().trim();
                                     if (!(attackedHand.equals(left) || attackedHand.equals(right)))
                                         System.out.println("Please enter either left or right.");
                                     else if (attackedHand.equals(left) && !hand4.isAlive)
@@ -201,6 +208,29 @@ public class Chopstick {
                             }
                         }
                     }
+                    case "rearrange" -> {
+                        if (!hand1.isAlive || !hand2.isAlive) {
+                            System.out.println("You cannot rearrange your hands' values since one of them is dead.");
+                            repeat = true;
+                            break;
+                        }
+                        if (hand1.getValue() == 4 && hand2.getValue() == 4) {
+                            System.out.println("You cannot rearrange your hands' values since they are too large.");
+                            repeat = true;
+                            break;
+                        }
+                        if ((hand1.getValue() == 1 && hand2.getValue() == 1) || (hand1.getValue() == 1 &&
+                                hand2.getValue() == 0) || (hand1.getValue() == 0 && hand2.getValue() == 1)) {
+                            System.out.println("You cannot rearrange your hands' values since they are too small.");
+                            repeat = true;
+                            break;
+                        }
+                        Hand.rearrange(hand1, hand2);
+                        System.out.println("You rearranged your hands' values, resulting in your " +
+                                hand1.direction.toString().toLowerCase() + " hand having a value of " + hand1.getValue() +
+                                " and your " + hand2.direction.toString().toLowerCase() + " hand having a value of " +
+                                hand2.getValue() + ".");
+                    }
                     case "print" -> {
                         printGame(turn);
                         repeat = true;
@@ -216,6 +246,7 @@ public class Chopstick {
                     default -> {
                         System.out.println("Please enter a valid value. For possible values, type help.");
                         repeat = true;
+                        input = "";
                     }
                 }
 
@@ -239,7 +270,7 @@ public class Chopstick {
                         }
                         while (true) {
                             System.out.print("To which hand?: ");
-                            hand = s.next().toLowerCase().trim();
+                            hand = s.nextLine().toLowerCase().trim();
                             if (hand.equals(left) || hand.equals(right))
                                 break;
                             System.out.println("Please type left or right.");
@@ -261,27 +292,36 @@ public class Chopstick {
                                 dividingHand = left;
                             else
                                 dividingHand = right;
-                            if (dividingHand.equals(left) && hand4.getValue() == 1)
+
+                            if ((dividingHand.equals(left) && hand4.getValue() == 1) || (dividingHand.equals(right) && hand3.getValue() == 1)) {
                                 System.out.println("You cannot divide your " + dividingHand + " hand as its value is 1.");
-                            if (dividingHand.equals(right) && hand3.getValue() == 1)
-                                System.out.println("You cannot divide your " + dividingHand + " hand as its value is 1.");
-                            if (dividingHand.equals(left) && hand4.getValue() % 2 != 0) {
-                                System.out.println("You cannot divide your " +  dividingHand + " hand since its value is an odd number.");
-                                repeat = true;
-                                break;
-                            } else if (dividingHand.equals(right) && hand3.getValue() % 2 != 0) {
-                                System.out.println("You cannot divide your " +  dividingHand + " hand since its value is an odd number.");
                                 repeat = true;
                                 break;
                             }
+
+                            if (dividingHand.equals(left) && hand4.getValue() == 3) {
+                                Hand.oddDivide(hand4, hand3);
+                                System.out.println("You divided your " + dividingHand + " hand, resulting in your " + dividingHand +
+                                        " having a value of " + hand4.getValue() + " and your right hand having a value of " + hand3.getValue() + ".");
+                                break;
+                            }
+                            if (dividingHand.equals(right) && hand3.getValue() == 3) {
+                                Hand.oddDivide(hand3, hand4);
+                                System.out.println("You divided your " + dividingHand + " hand, resulting in your " + dividingHand +
+                                        " having a value of " + hand3.getValue() + " and your left hand having a value of " + hand4.getValue() + ".");
+                                break;
+                            }
+
                             if (dividingHand.equals(right))
                                 Hand.divide(hand3, hand4);
                             else
                                 Hand.divide(hand4, hand3);
                             System.out.println("You divided your " + dividingHand +
                                     " hand, resulting in both your hands having the value of " + hand3.getValue());
-                        } else
+                        } else {
                             System.out.println("You cannot divide, since both of your hands are already alive.");
+                            repeat = true;
+                        }
                     }
                     case "combine" -> {
                         if (!hand3.isAlive || !hand4.isAlive) {
@@ -303,7 +343,7 @@ public class Chopstick {
                         String attackedHand, hand;
                         while (true) {
                             System.out.print("With which hand of yours do you want to attack?: ");
-                            hand = s.next().toLowerCase().trim();
+                            hand = s.nextLine().toLowerCase().trim();
                             if (!(hand.equals(left) || hand.equals(right)))
                                 System.out.println("Please enter either left or right.");
                             else if (hand.equals(left) && !hand4.isAlive)
@@ -313,7 +353,7 @@ public class Chopstick {
                             else {
                                 while (true) {
                                     System.out.print("Which of your opponent's hands do you want to attack?: ");
-                                    attackedHand = s.next();
+                                    attackedHand = s.nextLine().toLowerCase().trim();
                                     if (!(attackedHand.equals(left) || attackedHand.equals(right)))
                                         System.out.println("Please enter either left or right.");
                                     else if (attackedHand.equals(left) && !hand1.isAlive)
@@ -350,6 +390,29 @@ public class Chopstick {
                             }
                         }
                     }
+                    case "rearrange" -> {
+                        if (!hand3.isAlive || !hand4.isAlive) {
+                            System.out.println("You cannot rearrange your hands' values since one of them is dead.");
+                            repeat = true;
+                            break;
+                        }
+                        if (hand3.getValue() == 4 && hand4.getValue() == 4) {
+                            System.out.println("You cannot rearrange your hands' values since they are too large.");
+                            repeat = true;
+                            break;
+                        }
+                        if ((hand3.getValue() == 1 && hand4.getValue() == 1) || (hand3.getValue() == 1 &&
+                                hand4.getValue() == 0) || (hand4.getValue() == 0 && hand3.getValue() == 1)) {
+                            System.out.println("You cannot rearrange your hands' values since they are too small.");
+                            repeat = true;
+                            break;
+                        }
+                        Hand.rearrange(hand3, hand4);
+                        System.out.println("You rearranged your hands' values, resulting in your " +
+                                hand4.direction.toString().toLowerCase() + " hand having a value of " + hand4.getValue() +
+                                " and your " + hand3.direction.toString().toLowerCase() + " hand having a value of " +
+                                hand3.getValue() + ".");
+                    }
                     case "print" -> {
                         printGame(turn);
                         repeat = true;
@@ -365,6 +428,7 @@ public class Chopstick {
                     default -> {
                         System.out.println("Please enter a valid value. For possible values, type help.");
                         repeat = true;
+                        input = "";
                     }
                 }
                 if (!repeat)
@@ -413,8 +477,12 @@ public class Chopstick {
 
     public static void reset() {
         hand1.setValue(1);
+        hand1.isAlive = true;
         hand2.setValue(1);
+        hand2.isAlive = true;
         hand3.setValue(1);
+        hand3.isAlive = true;
         hand4.setValue(1);
+        hand4.isAlive = true;
     }
 }
