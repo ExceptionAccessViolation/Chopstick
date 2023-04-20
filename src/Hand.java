@@ -1,5 +1,5 @@
 public class Hand {
-    boolean isAlive = !(this.value == 5);
+    boolean isAlive = !(this.value == -1);
 
     Allegiance allegiance;
     Direction direction;
@@ -36,6 +36,12 @@ public class Hand {
         deadHand.isAlive = true;
     }
 
+    public static void oddDivide(Hand aliveHand, Hand deadHand) { // to divide hand with value 3
+        aliveHand.setValue(2);
+        deadHand.setValue(1);
+        deadHand.isAlive = true;
+    }
+
     public int combine(Hand hand) {
         if ((this.value + hand.value) >= 5) {
             return -1;
@@ -52,9 +58,37 @@ public class Hand {
             attacked.suicide();
         else if (attackedValue > 5) {
             attackedValue -= 5;
-            attacked.value = attackedValue;
+//            attacked.value = attackedValue;
         }
         attacked.value = attackedValue;
+    }
+
+    public static void rearrange(Hand hand1, Hand hand2) {
+        int og1 = hand1.value;
+        int og2 = hand2.value;
+        if (hand1.value > hand2.value) {
+            hand1.value -= 1;
+            hand2.value += 1;
+            if (og1 == hand2.value || og2 == hand1.value) {
+                hand1.value -= 1;
+                hand2.value += 1;
+            }
+        } else {
+            hand1.value += 1;
+            hand2.value -= 1;
+            if (og1 == hand2.value || og2 == hand1.value) {
+                hand1.value += 1;
+                hand2.value -= 1;
+            }
+        }
+        if (hand1.value == 0) {
+            hand1.value = -1;
+            hand1.isAlive = false;
+        }
+        if (hand2.value == 0) {
+            hand2.value = -1;
+            hand2.isAlive = false;
+        }
     }
 
     public void dead() {
